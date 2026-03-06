@@ -344,6 +344,18 @@ main {
 
 .flag-row--last { border-bottom: none; }
 
+.summary-section-label {
+  font-size: 0.68rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--muted);
+  padding: 12px 24px 4px;
+  background: var(--cream);
+  border-bottom: 1px solid var(--border);
+  border-top: 1px solid var(--border);
+}
+
 .flag-left {
   display: flex;
   align-items: center;
@@ -578,12 +590,124 @@ footer {
     </div>
 
     <div class="flag-summary">
-      <div class="flag-row flag-row--red">
+
+      <div class="summary-section-label">Programme Eligibility</div>
+
+      <div class="flag-row">
+        <div class="flag-left">
+          <span class="flag-dot" style="background:#4472C4"></span>
+          <div>
+            <div class="flag-label">Grow Programme</div>
+            <div class="flag-desc">Stage 4 · Rev ≥ R600k · FT ≥ 2 · Industry eligible</div>
+          </div>
+        </div>
+        <div class="flag-count" style="color:#4472C4" id="sGrow">—</div>
+      </div>
+      <div class="flag-row">
+        <div class="flag-left">
+          <span class="flag-dot flag-dot--green"></span>
+          <div>
+            <div class="flag-label">Build Programme</div>
+            <div class="flag-desc">Stage 2–3 · Rev R2,500–R599,999</div>
+          </div>
+        </div>
+        <div class="flag-count col-green" id="sBuild">—</div>
+      </div>
+      <div class="flag-row">
         <div class="flag-left">
           <span class="flag-dot flag-dot--red"></span>
           <div>
-            <div class="flag-label">Deselected</div>
-            <div class="flag-desc">Below revenue threshold for business age</div>
+            <div class="flag-label">Ineligible</div>
+            <div class="flag-desc">Does not meet programme criteria</div>
+          </div>
+        </div>
+        <div class="flag-count col-red" id="sInelig">—</div>
+      </div>
+
+      <div class="summary-section-label">Business Maturity</div>
+
+      <div class="flag-row">
+        <div class="flag-left">
+          <span class="flag-dot" style="background:#2A7A4B"></span>
+          <div>
+            <div class="flag-label">Early Growth (Stage 4)</div>
+            <div class="flag-desc">Rev R600k–R5M · 2+ FT employees · B2B clients</div>
+          </div>
+        </div>
+        <div class="flag-count" style="color:#2A7A4B" id="sStage4">—</div>
+      </div>
+      <div class="flag-row">
+        <div class="flag-left">
+          <span class="flag-dot" style="background:#B8924A"></span>
+          <div>
+            <div class="flag-label">Seed (Stage 3)</div>
+            <div class="flag-desc">Rev R350k–R599k · 2+ part-time · Consistent delivery</div>
+          </div>
+        </div>
+        <div class="flag-count" style="color:#B8924A" id="sStage3">—</div>
+      </div>
+      <div class="flag-row">
+        <div class="flag-left">
+          <span class="flag-dot" style="background:#8B6F47"></span>
+          <div>
+            <div class="flag-label">MVP (Stage 2)</div>
+            <div class="flag-desc">Rev R2.5k–R349k · Owner only · Tested with customers</div>
+          </div>
+        </div>
+        <div class="flag-count" style="color:#8B6F47" id="sStage2">—</div>
+      </div>
+      <div class="flag-row">
+        <div class="flag-left">
+          <span class="flag-dot flag-dot--red"></span>
+          <div>
+            <div class="flag-label">Ideation / Growth (Stage 1 or 5)</div>
+            <div class="flag-desc">Outside programme scope — deselected</div>
+          </div>
+        </div>
+        <div class="flag-count col-red" id="sStageDesel">—</div>
+      </div>
+      <div class="flag-row">
+        <div class="flag-left">
+          <span class="flag-dot flag-dot--orange"></span>
+          <div>
+            <div class="flag-label">Insufficient data</div>
+            <div class="flag-desc">Missing product, revenue, or team information</div>
+          </div>
+        </div>
+        <div class="flag-count col-orange" id="sStageUnknown">—</div>
+      </div>
+
+      <div class="summary-section-label">Applicant Profile</div>
+
+      <div class="flag-row">
+        <div class="flag-left">
+          <span class="flag-dot" style="background:#7B5EA7"></span>
+          <div>
+            <div class="flag-label">Alumni</div>
+            <div class="flag-desc">Previously participated in an Allan Gray Makers programme</div>
+          </div>
+        </div>
+        <div class="flag-count" style="color:#7B5EA7" id="sAlumni">—</div>
+      </div>
+      <div class="flag-row">
+        <div class="flag-left">
+          <span class="flag-dot" style="background:#888"></span>
+          <div>
+            <div class="flag-label">External</div>
+            <div class="flag-desc">New applicants with no prior programme participation</div>
+          </div>
+        </div>
+        <div class="flag-count" style="color:#888" id="sExternal">—</div>
+      </div>
+
+      <div class="summary-section-label">Data Flags</div>
+
+      <div class="flag-row">
+        <div class="flag-left">
+          <span class="flag-dot flag-dot--red"></span>
+          <div>
+            <div class="flag-label">Revenue deselected</div>
+            <div class="flag-desc">Below minimum threshold for business age</div>
           </div>
         </div>
         <div class="flag-count col-red" id="sDesel">—</div>
@@ -593,7 +717,7 @@ footer {
           <span class="flag-dot flag-dot--orange"></span>
           <div>
             <div class="flag-label">Revenue follow-up</div>
-            <div class="flag-desc">Blank, outlier, or unverifiable revenue figures</div>
+            <div class="flag-desc">Blank, outlier, or unverifiable figures</div>
           </div>
         </div>
         <div class="flag-count col-orange" id="sFollow">—</div>
@@ -613,12 +737,12 @@ footer {
           <span class="flag-dot flag-dot--red"></span>
           <div>
             <div class="flag-label">Age flags</div>
-            <div class="flag-desc">Applicant outside 18–49 age range</div>
+            <div class="flag-desc">Outside 18–49 age range</div>
           </div>
         </div>
         <div class="flag-count col-red" id="sAge">—</div>
       </div>
-      <div class="flag-row">
+      <div class="flag-row flag-row--last">
         <div class="flag-left">
           <span class="flag-dot flag-dot--red"></span>
           <div>
@@ -627,16 +751,6 @@ footer {
           </div>
         </div>
         <div class="flag-count col-red" id="sCompliance">—</div>
-      </div>
-      <div class="flag-row flag-row--last">
-        <div class="flag-left">
-          <span class="flag-dot flag-dot--green"></span>
-          <div>
-            <div class="flag-label">No flags</div>
-            <div class="flag-desc">Meet all automated screening criteria</div>
-          </div>
-        </div>
-        <div class="flag-count col-green" id="sOk">—</div>
       </div>
     </div>
 
@@ -716,6 +830,8 @@ const C = {
   FT_HARD_LIMIT:10, TOTAL_HC_LIMIT:12, PT_HARD_LIMIT:8,
   REV_WEIGHTED_FLOOR:1706, MIN_AGE:18, MAX_AGE:49,
   REV_MIN:2500, REV_2_4:50000, REV_4PLUS:150000,
+  // Grow programme
+  GROW_REV_MIN:600000, GROW_FT_MIN:2,
 };
 
 const RED_FILL    = {type:'pattern',pattern:'solid',fgColor:{argb:'FFFF0000'}};
@@ -723,6 +839,38 @@ const ORANGE_FILL = {type:'pattern',pattern:'solid',fgColor:{argb:'FFFFA500'}};
 const RED_FONT    = {color:{argb:'FFB83232'},bold:true};
 const ORANGE_FONT = {color:{argb:'FFC97028'},bold:true};
 const BROWN_FONT  = {color:{argb:'FF804000'},bold:true};
+const GREEN_FILL  = {type:'pattern',pattern:'solid',fgColor:{argb:'FF92D050'}};
+const BLUE_FILL   = {type:'pattern',pattern:'solid',fgColor:{argb:'FF4472C4'}};
+const GREEN_FONT  = {color:{argb:'FF1E6B3C'},bold:true};
+const WHITE_FONT  = {color:{argb:'FFFFFFFF'},bold:true};
+
+function setStyle(cell, fill, font) { cell.style = { ...cell.style, fill, font }; }
+
+// ── Maturity stage scoring ────────────────────────────────────
+function scoreProduct(val) {
+  const v = String(val||'').toLowerCase();
+  if (v.includes('documented') && v.includes('basic spec'))         return 1;
+  if (v.includes('developed and tested') && v.includes('paying'))   return 2;
+  if (v.includes('repeatedly') && v.includes('consistent quality')) return 3;
+  if (v.includes('expanded') && v.includes('b2b'))                  return 4;
+  if (v.includes('multiple') && v.includes('market segment'))       return 5;
+  return null;
+}
+function scoreRevenue(rev) {
+  if (rev === null) return null;
+  if (rev < 2500)   return 1;
+  if (rev < 350000) return 2;
+  if (rev < 600000) return 3;
+  if (rev < 5000000)return 4;
+  return 5;
+}
+function scoreTeam(ft, pt) {
+  if (ft >= 5)             return 5;
+  if (ft >= 2)             return 4;
+  if (pt >= 2 && ft === 0) return 3;
+  return 2; // owner only / minimal
+}
+const STAGE_NAMES = {1:'Ideation',2:'MVP',3:'Seed',4:'Early Growth',5:'Growth'};
 
 // ExcelJS shares fill objects across cells by reference — mutating .fill directly
 // corrupts every other cell pointing to the same style. Always use these helpers.
@@ -819,7 +967,7 @@ async function processFile(file) {
   const ws1 = wb.getWorksheet('Summary Data');
   const ws2 = wb.getWorksheet('How many people did your bus_0');
   const today = new Date(); today.setHours(0,0,0,0);
-  const stats = { deselected:0, followup:0, empFlags:0, ok:0, ageFlags:0, bcFlags:0 };
+  const stats = { deselected:0, followup:0, empFlags:0, ok:0, ageFlags:0, bcFlags:0, alumni:0, external:0, build:0, grow:0, ineligible:0, stage2:0, stage3:0, stage4:0, stageDesel:0, stageUnknown:0 };
   const lastRow = ws1.rowCount;
 
   // ── STEP 1: Merge employment data ─────────────────────────
@@ -1074,6 +1222,108 @@ async function processFile(file) {
     }
   }
 
+  // ── STEP 10: Alumni / External count ────────────────────────
+  const colAlumniQ = findCol(ws1, 'Have you participated', 2);
+  const colPartType = ws1.columnCount + 1;
+  ws1.getRow(1).getCell(colPartType).value = 'Participant Type';
+  ws1.getRow(2).getCell(colPartType).value = 'Participant Type';
+  for (let r = 3; r <= ws1.rowCount; r++) {
+    const row = ws1.getRow(r);
+    const v = String(row.getCell(colAlumniQ).value || '').trim().toLowerCase();
+    if (v === 'yes') { row.getCell(colPartType).value = 'Alumni'; stats.alumni++; }
+    else             { row.getCell(colPartType).value = 'External'; stats.external++; }
+  }
+
+  // ── STEP 11: Business Maturity Stage ──────────────────────
+  const colProd   = findCol(ws1, 'Where are you with your product', 2);
+  const colRevM   = findCol(ws1, '2025/2026', 2);
+  const colFTM    = findCol(ws1, 'Full-time Workers', 2);
+  const colPTM    = findCol(ws1, 'Part-time Workers', 2);
+  const colStage  = ws1.columnCount + 1;
+  ws1.getRow(1).getCell(colStage).value = 'Business Maturity Stage';
+  ws1.getRow(2).getCell(colStage).value = 'Business Maturity Stage';
+
+  for (let r = 3; r <= ws1.rowCount; r++) {
+    const row  = ws1.getRow(r);
+    const cell = row.getCell(colStage);
+    const s1   = scoreProduct(row.getCell(colProd).value);
+    const s2   = scoreRevenue(parseRev(row.getCell(colRevM).value));
+    const s3   = scoreTeam(safeInt(row.getCell(colFTM).value), safeInt(row.getCell(colPTM).value));
+
+    if (s1===null || s2===null || s3===null) {
+      cell.value = 'Insufficient data'; setFill(cell, ORANGE_FILL); stats.stageUnknown++; continue;
+    }
+    if (s1===1 || s2===1 || s3===1) {
+      cell.value = 'DESELECT: Ideation stage'; setFont(cell, RED_FONT); stats.stageDesel++; continue;
+    }
+    if (s1===5 && s2===5 && s3===5) {
+      cell.value = 'DESELECT: Beyond scope (Growth stage)'; setFont(cell, RED_FONT); stats.stageDesel++; continue;
+    }
+    const stage = Math.min(s1, s2, s3);
+    cell.value = `Stage ${stage}: ${STAGE_NAMES[stage]} (Product:${s1} Revenue:${s2} Team:${s3})`;
+    if (stage === 2) stats.stage2++;
+    else if (stage === 3) stats.stage3++;
+    else if (stage === 4) stats.stage4++;
+  }
+
+  // ── STEP 12: Programme Eligibility ────────────────────────
+  const colIndustry  = findCol(ws1, 'Primary Industry', 2);
+  const colPartTypeR = ws1.columnCount - 1; // Participant Type col
+  const colStageR    = ws1.columnCount;     // Maturity Stage col
+  const colRevFinal  = findCol(ws1, '2025/2026', 2);
+  const colFTFinal   = findCol(ws1, 'Full-time Workers', 2);
+  const colDeselF    = findCol(ws1, 'Revenue Deselection', 2);
+  const colAgeF      = findCol(ws1, 'Age (Years)', 2);
+  const colBCF       = findCol(ws1, 'Basic Compliance', 2);
+  const colPTFinal   = findCol(ws1, 'Part-time Workers', 2);
+  const REQ          = ['business registered with cipc','business bank account','tax clearance'];
+
+  const colElig = ws1.columnCount + 1;
+  ws1.getRow(1).getCell(colElig).value = 'Programme Eligibility';
+  ws1.getRow(2).getCell(colElig).value = 'Programme Eligibility';
+
+  for (let r = 3; r <= ws1.rowCount; r++) {
+    const row      = ws1.getRow(r);
+    const cell     = row.getCell(colElig);
+    const age      = row.getCell(colAgeF).value;
+    const bcVal    = String(row.getCell(colBCF).value || '').toLowerCase();
+    const deselVal = String(row.getCell(colDeselF).value || '');
+    const matVal   = String(row.getCell(colStageR).value || '');
+    const partType = String(row.getCell(colPartTypeR).value || '').toLowerCase();
+    const industry = String(row.getCell(colIndustry).value || '').toLowerCase();
+    const rev6     = parseRev(row.getCell(colRevFinal).value);
+    const ft       = safeInt(row.getCell(colFTFinal).value);
+    const pt       = safeInt(row.getCell(colPTFinal).value);
+    const isAlumni = (partType === 'alumni');
+
+    // Hard deselectors
+    const ageNum  = typeof age === 'number' ? age : parseInt(age);
+    const ageFail = isNaN(ageNum) || ageNum < C.MIN_AGE || ageNum > C.MAX_AGE;
+    const bcFail  = !bcVal || !REQ.every(x => bcVal.includes(x));
+    const revDesel= deselVal.startsWith('DESELECT');
+    const matDesel= matVal.startsWith('DESELECT');
+
+    if (ageFail || bcFail || revDesel || matDesel) {
+      cell.value = 'Ineligible'; setStyle(cell, RED_FILL, WHITE_FONT); stats.ineligible++; continue;
+    }
+
+    const stageMatch = matVal.match(/Stage (\d)/);
+    const stage = stageMatch ? parseInt(stageMatch[1]) : null;
+
+    // Grow: Stage 4, rev ≥ R600k, FT ≥ 2, industry rules
+    const growIndustryOk = isAlumni
+      ? (industry.includes('construction') || industry.includes('automotive') || industry === '')
+      : !industry.includes('automotive');
+    const growOk = stage === 4 && rev6 !== null && rev6 >= C.GROW_REV_MIN && ft >= C.GROW_FT_MIN && growIndustryOk;
+
+    // Build: Stage 2 or 3, rev R2,500–R599,999
+    const buildOk = (stage === 2 || stage === 3) && rev6 !== null && rev6 >= C.REV_MIN && rev6 < C.GROW_REV_MIN;
+
+    if (growOk)       { cell.value = 'Grow Programme';  setStyle(cell, BLUE_FILL, WHITE_FONT); stats.grow++; }
+    else if (buildOk) { cell.value = 'Build Programme'; setStyle(cell, GREEN_FILL, GREEN_FONT); stats.build++; }
+    else              { cell.value = 'Ineligible';       setStyle(cell, RED_FILL, WHITE_FONT);  stats.ineligible++; }
+  }
+
   // ── Bold header rows ──────────────────────────────────────
   for (let r = 1; r <= 2; r++) {
     ws1.getRow(r).eachCell(cell => {
@@ -1108,13 +1358,22 @@ runBtn.addEventListener('click', async () => {
     runBtnText.textContent = 'Run Processor';
     runBtn.disabled = false;
 
-    document.getElementById('sDesel').textContent      = stats.deselected;
-    document.getElementById('sFollow').textContent     = stats.followup;
-    document.getElementById('sEmp').textContent        = stats.empFlags;
-    document.getElementById('sAge').textContent        = stats.ageFlags;
-    document.getElementById('sCompliance').textContent = stats.bcFlags;
-    document.getElementById('sOk').textContent         = stats.ok;
-    document.getElementById('recordPill').textContent  = `${total} applicants`;
+    document.getElementById('sStage4').textContent      = stats.stage4;
+    document.getElementById('sStage3').textContent      = stats.stage3;
+    document.getElementById('sStage2').textContent      = stats.stage2;
+    document.getElementById('sStageDesel').textContent  = stats.stageDesel;
+    document.getElementById('sStageUnknown').textContent= stats.stageUnknown;
+    document.getElementById('sGrow').textContent        = stats.grow;
+    document.getElementById('sBuild').textContent       = stats.build;
+    document.getElementById('sInelig').textContent      = stats.ineligible;
+    document.getElementById('sAlumni').textContent      = stats.alumni;
+    document.getElementById('sExternal').textContent    = stats.external;
+    document.getElementById('sDesel').textContent       = stats.deselected;
+    document.getElementById('sFollow').textContent      = stats.followup;
+    document.getElementById('sEmp').textContent         = stats.empFlags;
+    document.getElementById('sAge').textContent         = stats.ageFlags;
+    document.getElementById('sCompliance').textContent  = stats.bcFlags;
+    document.getElementById('recordPill').textContent   = `${total} applicants`;
     resultsCard.classList.add('visible');
 
     const blob = new Blob([bytes], { type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
