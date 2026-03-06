@@ -1,0 +1,1141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Application Processor — Allan Gray Makers</title>
+<script src="https://unpkg.com/exceljs@4.3.0/dist/exceljs.min.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;1,500&family=Outfit:wght@300;400;500;600&display=swap');
+
+:root {
+  --ink:      #141414;
+  --paper:    #F7F4EF;
+  --cream:    #EDE8DF;
+  --gold:     #B8924A;
+  --gold-lt:  #D4B278;
+  --red:      #B83232;
+  --orange:   #C97028;
+  --green:    #2A7A4B;
+  --muted:    #7A7060;
+  --border:   #D8D0C4;
+  --white:    #FFFFFF;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Outfit', sans-serif;
+  background: var(--paper);
+  color: var(--ink);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden;
+}
+
+/* ── HEADER ─────────────────────────────────────────────────── */
+header {
+  background: var(--ink);
+  padding: 0 48px;
+  height: 72px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 2px solid var(--gold);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.monogram {
+  width: 40px; height: 40px;
+  background: var(--gold);
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Playfair Display', serif;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--ink);
+  letter-spacing: -1px;
+}
+
+.header-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.1rem;
+  color: var(--paper);
+  font-weight: 500;
+}
+
+.header-sub {
+  font-size: 0.7rem;
+  color: var(--gold-lt);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-weight: 300;
+  margin-top: 1px;
+}
+
+.header-badge {
+  font-size: 0.68rem;
+  color: var(--gold);
+  border: 1px solid var(--gold);
+  padding: 3px 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-weight: 500;
+}
+
+/* ── MAIN ───────────────────────────────────────────────────── */
+main {
+  flex: 1;
+  max-width: 840px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 64px 32px 80px;
+}
+
+/* ── INTRO ──────────────────────────────────────────────────── */
+.intro {
+  margin-bottom: 48px;
+  opacity: 0;
+  animation: fadeUp 0.6s ease 0.1s forwards;
+}
+
+.intro h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: 2.6rem;
+  font-weight: 500;
+  line-height: 1.15;
+  margin-bottom: 12px;
+}
+
+.intro h1 em {
+  font-style: italic;
+  color: var(--gold);
+}
+
+.intro p {
+  font-size: 0.95rem;
+  color: var(--muted);
+  font-weight: 300;
+  max-width: 480px;
+  line-height: 1.7;
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── CARD ───────────────────────────────────────────────────── */
+.card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  margin-bottom: 20px;
+  opacity: 0;
+  animation: fadeUp 0.6s ease forwards;
+}
+
+.card:nth-child(2) { animation-delay: 0.15s; }
+.card:nth-child(3) { animation-delay: 0.25s; }
+.card:nth-child(4) { animation-delay: 0.35s; }
+
+/* ── DROP ZONE ──────────────────────────────────────────────── */
+.drop-zone {
+  padding: 52px 40px;
+  text-align: center;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+  border: 2px dashed transparent;
+  border-radius: 2px;
+  position: relative;
+}
+
+.drop-zone.drag-over {
+  background: #FDFAF5;
+  border-color: var(--gold);
+}
+
+.drop-zone.has-file {
+  background: #F0F9F4;
+  border: 2px solid var(--green);
+}
+
+.drop-zone input[type="file"] {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+  width: 100%;
+  height: 100%;
+}
+
+.drop-icon {
+  width: 64px; height: 64px;
+  margin: 0 auto 20px;
+  background: var(--cream);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.2s, transform 0.2s;
+}
+
+.drop-zone:hover .drop-icon,
+.drop-zone.drag-over .drop-icon {
+  background: var(--gold-lt);
+  transform: scale(1.05);
+}
+
+.drop-zone.has-file .drop-icon {
+  background: #C8EED8;
+}
+
+.drop-icon svg { width: 28px; height: 28px; }
+
+.drop-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.4rem;
+  font-weight: 500;
+  margin-bottom: 8px;
+  transition: color 0.2s;
+}
+
+.drop-zone.has-file .drop-title { color: var(--green); }
+
+.drop-hint {
+  font-size: 0.85rem;
+  color: var(--muted);
+  font-weight: 300;
+}
+
+.file-selected-name {
+  display: none;
+  margin-top: 12px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--green);
+}
+
+.drop-zone.has-file .file-selected-name { display: block; }
+.drop-zone.has-file .drop-prompt-text { display: none; }
+
+/* ── RUN BUTTON ─────────────────────────────────────────────── */
+.run-wrap {
+  padding: 0 32px 32px;
+}
+
+.run-btn {
+  width: 100%;
+  height: 56px;
+  background: var(--ink);
+  color: var(--paper);
+  border: none;
+  border-radius: 2px;
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.15s, opacity 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.run-btn:hover:not(:disabled) {
+  background: #2a2a2a;
+  transform: translateY(-1px);
+}
+
+.run-btn:disabled { opacity: 0.35; cursor: not-allowed; transform: none; }
+
+.run-btn.processing {
+  background: var(--gold);
+  color: var(--ink);
+}
+
+.btn-spinner {
+  width: 18px; height: 18px;
+  border: 2px solid rgba(0,0,0,0.2);
+  border-top-color: var(--ink);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  display: none;
+}
+
+.run-btn.processing .btn-spinner { display: block; }
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── PROGRESS LOG ───────────────────────────────────────────── */
+.processing-indicator {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 28px;
+  font-size: 0.875rem;
+  color: var(--muted);
+  font-weight: 400;
+}
+
+.processing-indicator.visible { display: flex; }
+
+.proc-spinner {
+  width: 20px; height: 20px;
+  border: 2px solid var(--border);
+  border-top-color: var(--gold);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  flex-shrink: 0;
+}
+
+}
+
+
+/* ── RESULTS ────────────────────────────────────────────────── */
+.results-card { display: none; }
+.results-card.visible { display: block; }
+
+.results-top {
+  background: var(--ink);
+  padding: 24px 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.results-top h3 {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.2rem;
+  font-weight: 500;
+  color: var(--paper);
+}
+
+.results-top .record-pill {
+  background: rgba(255,255,255,0.1);
+  color: var(--gold-lt);
+  font-size: 0.75rem;
+  font-weight: 500;
+  padding: 4px 12px;
+  letter-spacing: 0.06em;
+}
+
+.flag-summary {
+  border-bottom: 1px solid var(--border);
+}
+
+.flag-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 24px;
+  border-bottom: 1px solid #F5F0E8;
+  gap: 16px;
+}
+
+.flag-row--last { border-bottom: none; }
+
+.flag-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.flag-dot {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.flag-dot--red    { background: var(--red); }
+.flag-dot--orange { background: var(--orange); }
+.flag-dot--green  { background: var(--green); }
+
+.flag-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+
+.flag-desc {
+  font-size: 0.775rem;
+  color: var(--muted);
+  font-weight: 300;
+}
+
+.flag-count {
+  font-family: 'Playfair Display', serif;
+  font-size: 2rem;
+  line-height: 1;
+  flex-shrink: 0;
+  min-width: 48px;
+  text-align: right;
+}
+
+.col-red    { color: var(--red); }
+.col-orange { color: var(--orange); }
+.col-green  { color: var(--green); }
+
+.download-area {
+  padding: 28px;
+}
+
+.dl-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  height: 52px;
+  background: var(--green);
+  color: white;
+  text-decoration: none;
+  border-radius: 2px;
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.15s;
+  border: none;
+}
+
+.dl-btn:hover { background: #226040; transform: translateY(-1px); }
+.dl-btn svg { width: 18px; height: 18px; fill: white; flex-shrink: 0; }
+
+/* ── ERROR ──────────────────────────────────────────────────── */
+.error-box {
+  display: none;
+  margin: 0 0 20px;
+  background: #FDF0EE;
+  border: 1px solid #E8C3BB;
+  border-left: 3px solid var(--red);
+  padding: 14px 18px;
+  font-size: 0.875rem;
+  color: var(--red);
+  border-radius: 2px;
+}
+
+.error-box.visible { display: block; }
+
+/* ── STEPS LEGEND ───────────────────────────────────────────── */
+.legend {
+  margin-top: 56px;
+  padding-top: 48px;
+  border-top: 1px solid var(--border);
+  opacity: 0;
+  animation: fadeUp 0.6s ease 0.5s forwards;
+}
+
+.legend-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.05rem;
+  font-weight: 500;
+  color: var(--muted);
+  margin-bottom: 24px;
+  font-style: italic;
+}
+
+.legend-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2px;
+}
+
+.legend-item {
+  background: var(--white);
+  border: 1px solid var(--border);
+  padding: 18px 20px;
+  transition: border-color 0.2s, transform 0.15s;
+}
+
+.legend-item:hover {
+  border-color: var(--gold);
+  transform: translateY(-2px);
+}
+
+.legend-num {
+  font-size: 0.65rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--gold);
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.legend-name {
+  font-size: 0.875rem;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.legend-desc {
+  font-size: 0.775rem;
+  color: var(--muted);
+  line-height: 1.55;
+  font-weight: 300;
+}
+
+/* ── FOOTER ─────────────────────────────────────────────────── */
+footer {
+  background: var(--cream);
+  border-top: 1px solid var(--border);
+  padding: 20px 48px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.72rem;
+  color: var(--muted);
+  letter-spacing: 0.04em;
+}
+
+@media (max-width: 640px) {
+  main { padding: 40px 16px 60px; }
+  header { padding: 0 20px; }
+  .intro h1 { font-size: 2rem; }
+
+  .legend-grid { grid-template-columns: 1fr; }
+  footer { flex-direction: column; gap: 6px; text-align: center; }
+  .drop-zone { padding: 36px 20px; }
+  .run-wrap { padding: 0 20px 24px; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-left">
+    <div class="monogram">AG</div>
+    <div>
+      <div class="header-title">Application Processor</div>
+      <div class="header-sub">Makers Programme · Data Cleaning & Shortlisting Tool</div>
+    </div>
+  </div>
+  <div class="header-badge">Internal Use</div>
+</header>
+
+<main>
+
+  <div class="intro">
+    <h1>Process applications<br><em>in seconds.</em></h1>
+    <p>Upload your Accelerator export, run all 9 transformations automatically, and download a clean, flagged spreadsheet ready for review.</p>
+  </div>
+
+  <div class="error-box" id="errorBox"></div>
+
+  <!-- Upload card -->
+  <div class="card">
+    <div class="drop-zone" id="dropZone">
+      <input type="file" id="fileInput" accept=".xlsx,.xls">
+      <div class="drop-icon">
+        <!-- idle state -->
+        <svg id="iconIdle" viewBox="0 0 28 28" fill="none">
+          <rect x="4" y="6" width="20" height="16" rx="1.5" stroke="#B8924A" stroke-width="1.8"/>
+          <path d="M10 6V4h8v2" stroke="#B8924A" stroke-width="1.8" stroke-linecap="round"/>
+          <path d="M14 11v6M11 14l3-3 3 3" stroke="#B8924A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <!-- selected state -->
+        <svg id="iconDone" viewBox="0 0 28 28" fill="none" style="display:none">
+          <circle cx="14" cy="14" r="9" stroke="#2A7A4B" stroke-width="1.8"/>
+          <path d="M10 14l3 3 5-5" stroke="#2A7A4B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div class="drop-title drop-prompt-text">Drop your export here</div>
+      <div class="drop-title" id="selectedTitle" style="display:none; color: var(--green)">File ready</div>
+      <div class="drop-hint drop-prompt-text">or click to browse &nbsp;·&nbsp; .xlsx files only</div>
+      <div class="drop-hint" id="selectedHint" style="display:none"></div>
+      <div class="file-selected-name" id="fileSelectedName"></div>
+    </div>
+    <div class="run-wrap">
+      <button class="run-btn" id="runBtn" disabled>
+        <div class="btn-spinner"></div>
+        <span id="runBtnText">Run Processor</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Processing indicator -->
+  <div class="processing-indicator" id="processingIndicator">
+    <div class="proc-spinner"></div>
+    <span>Processing your file…</span>
+  </div>
+
+  <!-- Results card -->
+  <div class="card results-card" id="resultsCard">
+    <div class="results-top">
+      <h3>Processing complete</h3>
+      <div class="record-pill" id="recordPill"></div>
+    </div>
+
+    <div class="flag-summary">
+      <div class="flag-row flag-row--red">
+        <div class="flag-left">
+          <span class="flag-dot flag-dot--red"></span>
+          <div>
+            <div class="flag-label">Deselected</div>
+            <div class="flag-desc">Below revenue threshold for business age</div>
+          </div>
+        </div>
+        <div class="flag-count col-red" id="sDesel">—</div>
+      </div>
+      <div class="flag-row">
+        <div class="flag-left">
+          <span class="flag-dot flag-dot--orange"></span>
+          <div>
+            <div class="flag-label">Revenue follow-up</div>
+            <div class="flag-desc">Blank, outlier, or unverifiable revenue figures</div>
+          </div>
+        </div>
+        <div class="flag-count col-orange" id="sFollow">—</div>
+      </div>
+      <div class="flag-row">
+        <div class="flag-left">
+          <span class="flag-dot flag-dot--orange"></span>
+          <div>
+            <div class="flag-label">Employment flags</div>
+            <div class="flag-desc">Implausible headcount or wage-bill ratios</div>
+          </div>
+        </div>
+        <div class="flag-count col-orange" id="sEmp">—</div>
+      </div>
+      <div class="flag-row">
+        <div class="flag-left">
+          <span class="flag-dot flag-dot--red"></span>
+          <div>
+            <div class="flag-label">Age flags</div>
+            <div class="flag-desc">Applicant outside 18–49 age range</div>
+          </div>
+        </div>
+        <div class="flag-count col-red" id="sAge">—</div>
+      </div>
+      <div class="flag-row">
+        <div class="flag-left">
+          <span class="flag-dot flag-dot--red"></span>
+          <div>
+            <div class="flag-label">Compliance flags</div>
+            <div class="flag-desc">Missing CIPC, bank account, or tax clearance</div>
+          </div>
+        </div>
+        <div class="flag-count col-red" id="sCompliance">—</div>
+      </div>
+      <div class="flag-row flag-row--last">
+        <div class="flag-left">
+          <span class="flag-dot flag-dot--green"></span>
+          <div>
+            <div class="flag-label">No flags</div>
+            <div class="flag-desc">Meet all automated screening criteria</div>
+          </div>
+        </div>
+        <div class="flag-count col-green" id="sOk">—</div>
+      </div>
+    </div>
+
+    <div class="download-area">
+      <a class="dl-btn" id="dlBtn" href="#" download>
+        <svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+        <span id="dlBtnText">Download Processed File</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- Steps legend -->
+  <div class="legend">
+    <div class="legend-title">What the processor does</div>
+    <div class="legend-grid">
+      <div class="legend-item">
+        <div class="legend-num">Step 01</div>
+        <div class="legend-name">Merge Employment Data</div>
+        <div class="legend-desc">Joins headcount from Sheet 2 into Summary Data by Application ID. Flags unmatched rows.</div>
+      </div>
+      <div class="legend-item">
+        <div class="legend-num">Step 02</div>
+        <div class="legend-name">Remove Duplicate Columns</div>
+        <div class="legend-desc">Deletes duplicate Full Name and Email columns left by the Accelerator export.</div>
+      </div>
+      <div class="legend-item">
+        <div class="legend-num">Step 03</div>
+        <div class="legend-name">Age Validation</div>
+        <div class="legend-desc">Calculates age from Date of Birth. Flags under 18 or over 49 in red.</div>
+      </div>
+      <div class="legend-item">
+        <div class="legend-num">Step 04</div>
+        <div class="legend-name">Contact Deduplication</div>
+        <div class="legend-desc">Clears Alternative Contact if it's identical to the primary number.</div>
+      </div>
+      <div class="legend-item">
+        <div class="legend-num">Step 05</div>
+        <div class="legend-name">Primary Industry</div>
+        <div class="legend-desc">Consolidates split Primary Industry columns — fills gaps then removes the duplicate.</div>
+      </div>
+      <div class="legend-item">
+        <div class="legend-num">Step 06</div>
+        <div class="legend-name">Basic Compliance</div>
+        <div class="legend-desc">Red-flags applicants missing CIPC registration, business bank account, or tax clearance.</div>
+      </div>
+      <div class="legend-item">
+        <div class="legend-num">Step 07</div>
+        <div class="legend-name">Years in Operation</div>
+        <div class="legend-desc">Calculates business age in years from the Business Registration Date.</div>
+      </div>
+      <div class="legend-item">
+        <div class="legend-num">Step 08</div>
+        <div class="legend-name">Revenue Deselection</div>
+        <div class="legend-desc">Applies revenue minimums by business age. IQR outlier detection on latest year. Deselects below threshold.</div>
+      </div>
+      <div class="legend-item">
+        <div class="legend-num">Step 09</div>
+        <div class="legend-name">Employment Sense-Check</div>
+        <div class="legend-desc">Flags implausible headcount-to-revenue ratios, wage bill ceilings, and hard FT/total limits.</div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<footer>
+  <span>Allan Gray Makers Programme · Application Processor</span>
+  <span>Internal use only · Do not distribute</span>
+</footer>
+
+<script>
+// ════════════════════════════════════════════════════════════
+// CONSTANTS
+// ════════════════════════════════════════════════════════════
+const C = {
+  MIN_MONTHLY_WAGE:4500, WAGE_BILL_MULT:0.9,
+  FT_HARD_LIMIT:10, TOTAL_HC_LIMIT:12, PT_HARD_LIMIT:8,
+  REV_WEIGHTED_FLOOR:1706, MIN_AGE:18, MAX_AGE:49,
+  REV_MIN:2500, REV_2_4:50000, REV_4PLUS:150000,
+};
+
+const RED_FILL    = {type:'pattern',pattern:'solid',fgColor:{argb:'FFFF0000'}};
+const ORANGE_FILL = {type:'pattern',pattern:'solid',fgColor:{argb:'FFFFA500'}};
+const RED_FONT    = {color:{argb:'FFB83232'},bold:true};
+const ORANGE_FONT = {color:{argb:'FFC97028'},bold:true};
+const BROWN_FONT  = {color:{argb:'FF804000'},bold:true};
+
+// ExcelJS shares fill objects across cells by reference — mutating .fill directly
+// corrupts every other cell pointing to the same style. Always use these helpers.
+function setFill(cell, fill) { cell.style = { ...cell.style, fill }; }
+function setFont(cell, font) { cell.style = { ...cell.style, font: { ...(cell.style.font||{}), ...font } }; }
+
+// ════════════════════════════════════════════════════════════
+// UI ELEMENTS
+// ════════════════════════════════════════════════════════════
+const dropZone   = document.getElementById('dropZone');
+const fileInput  = document.getElementById('fileInput');
+const runBtn     = document.getElementById('runBtn');
+const runBtnText = document.getElementById('runBtnText');
+const procIndicator = document.getElementById('processingIndicator');
+const resultsCard= document.getElementById('resultsCard');
+const errorBox   = document.getElementById('errorBox');
+const dlBtn      = document.getElementById('dlBtn');
+const iconIdle   = document.getElementById('iconIdle');
+const iconDone   = document.getElementById('iconDone');
+
+let selectedFile = null;
+
+// ════════════════════════════════════════════════════════════
+// FILE SELECTION
+// ════════════════════════════════════════════════════════════
+dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+dropZone.addEventListener('drop', e => {
+  e.preventDefault(); dropZone.classList.remove('drag-over');
+  if (e.dataTransfer.files[0]) setFile(e.dataTransfer.files[0]);
+});
+fileInput.addEventListener('change', e => { if (e.target.files[0]) setFile(e.target.files[0]); });
+
+function setFile(f) {
+  selectedFile = f;
+  dropZone.classList.add('has-file');
+  iconIdle.style.display = 'none';
+  iconDone.style.display = '';
+  document.getElementById('selectedTitle').style.display = '';
+  document.getElementById('selectedHint').style.display  = '';
+  document.getElementById('selectedHint').textContent = f.name;
+  runBtn.disabled = false;
+  hideError();
+  resultsCard.classList.remove('visible');
+  procIndicator.classList.remove('visible');
+}
+
+// ════════════════════════════════════════════════════════════
+// HELPERS
+// ════════════════════════════════════════════════════════════
+function showError(msg) { errorBox.textContent = '⚠ ' + msg; errorBox.classList.add('visible'); }
+function hideError()    { errorBox.classList.remove('visible'); }
+
+function parseRev(v) {
+  if (v == null || v === '') return null;
+  const n = parseFloat(String(v).replace(/[\u00a0,\s]/g,'').replace(/ZAR/gi,'').trim());
+  return isNaN(n) ? null : n;
+}
+
+function safeInt(v) { const n = parseInt(v); return isNaN(n) ? 0 : Math.max(0, n); }
+
+function findCol(ws, text, headerRowNum) {
+  const row = ws.getRow(headerRowNum);
+  const limit = Math.min(ws.columnCount + 5, 300);
+  for (let c = 1; c <= limit; c++) {
+    const v = String(row.getCell(c).value || '').toLowerCase();
+    if (v.includes(text.toLowerCase())) return c;
+  }
+  return null;
+}
+
+// Safe splice: only insert if column index is valid
+function safeSpliceInsert(ws, colIdx, count) {
+  if (!colIdx || colIdx < 1 || colIdx > 16300) throw new Error(`Column "${colIdx}" not found in sheet — is this the right file?`);
+  const empties = Array(count).fill([]);
+  ws.spliceColumns(colIdx, 0, ...empties);
+}
+
+// ════════════════════════════════════════════════════════════
+// CORE PROCESSOR  (ExcelJS — full style support)
+// ════════════════════════════════════════════════════════════
+async function processFile(file) {
+  const buf = await file.arrayBuffer();
+
+  const wb = new ExcelJS.Workbook();
+  await wb.xlsx.load(buf);
+
+  const sheetNames = wb.worksheets.map(s => s.name);
+  if (!sheetNames.includes('Summary Data'))
+    throw new Error("Sheet 'Summary Data' not found in the uploaded file.");
+  if (!sheetNames.includes('How many people did your bus_0'))
+    throw new Error("Sheet 'How many people did your bus_0' not found.");
+
+  const ws1 = wb.getWorksheet('Summary Data');
+  const ws2 = wb.getWorksheet('How many people did your bus_0');
+  const today = new Date(); today.setHours(0,0,0,0);
+  const stats = { deselected:0, followup:0, empFlags:0, ok:0, ageFlags:0, bcFlags:0 };
+  const lastRow = ws1.rowCount;
+
+  // ── STEP 1: Merge employment data ─────────────────────────
+  const colBiz = findCol(ws1, 'Business Status', 2);
+  const ins = colBiz + 1;
+  safeSpliceInsert(ws1, ins, 6);
+
+  const newH = ['Application ID (Merge)','Merge Flag','Merge Comment',
+                'Casual Workers','Part-time Workers','Full-time Workers'];
+  for (let h = 0; h < 6; h++)
+    for (let r = 1; r <= 6; r++)
+      ws1.getRow(r).getCell(ins + h).value = newH[h];
+
+  const lookup = {};
+  ws2.eachRow((row, ri) => {
+    if (ri < 2) return;
+    const id = String(row.getCell(1).value || '').trim();
+    if (id) lookup[id] = { casual:row.getCell(3).value, pt:row.getCell(4).value, ft:row.getCell(5).value };
+  });
+
+  let matched = 0;
+  for (let r = 3; r <= lastRow; r++) {
+    const row = ws1.getRow(r);
+    const id = String(row.getCell(1).value || '').trim();
+    row.getCell(ins).value = id;
+    if (lookup[id]) {
+      row.getCell(ins+1).value = 'Matched';
+      row.getCell(ins+3).value = lookup[id].casual;
+      row.getCell(ins+4).value = lookup[id].pt;
+      row.getCell(ins+5).value = lookup[id].ft;
+      matched++;
+    } else {
+      row.getCell(ins+1).value = 'OUTLIER';
+      setFill(row.getCell(ins+1), ORANGE_FILL);
+      row.getCell(ins+2).value = 'No matching Application ID — follow up required';
+    }
+  }
+
+  // ── STEP 2: Remove Full Name + Email ──────────────────────
+  const colFN = findCol(ws1, 'Full Name', 1);
+  const colEM = findCol(ws1, 'Email', 1);
+  [colFN, colEM].filter(Boolean).sort((a,b) => b-a).forEach(c => ws1.spliceColumns(c, 1));
+
+  // ── STEP 3: Age ───────────────────────────────────────────
+  const colDOB = findCol(ws1, 'Date of Birth', 2);
+  safeSpliceInsert(ws1, colDOB + 1, 1);
+  ws1.getRow(1).getCell(colDOB+1).value = 'Age (Years)';
+  ws1.getRow(2).getCell(colDOB+1).value = 'Age (Years)';
+  let ageFlags = 0;
+  for (let r = 3; r <= ws1.rowCount; r++) {
+    const row = ws1.getRow(r);
+    const dv  = row.getCell(colDOB).value;
+    let age = 'Invalid DOB', flagRed = true;
+    if (dv) {
+      let dob = dv instanceof Date ? dv : new Date(String(dv).substring(0,10));
+      if (!isNaN(dob)) {
+        let a = today.getFullYear() - dob.getFullYear();
+        if (today.getMonth() < dob.getMonth() ||
+            (today.getMonth() === dob.getMonth() && today.getDate() < dob.getDate())) a--;
+        age = a;
+        flagRed = (a < C.MIN_AGE || a > C.MAX_AGE);
+      }
+    }
+    row.getCell(colDOB+1).value = age;
+    if (flagRed) { setFill(row.getCell(colDOB+1), RED_FILL); ageFlags++; stats.ageFlags++; }
+  }
+
+  // ── STEP 4: Deduplicate contacts ──────────────────────────
+  const colC  = findCol(ws1, 'Contact Number', 2);
+  const colAC = findCol(ws1, 'Alternative Contact Number', 2);
+  let dedup = 0;
+  if (colC && colAC) {
+    for (let r = 3; r <= ws1.rowCount; r++) {
+      const row = ws1.getRow(r);
+      const a = String(row.getCell(colC).value  || '').trim();
+      const b = String(row.getCell(colAC).value || '').trim();
+      if (a && b && a === b) { row.getCell(colAC).value = null; dedup++; }
+    }
+  }
+
+  // ── STEP 5: Consolidate Primary Industry ──────────────────
+  const colPI = findCol(ws1, 'Primary Industry', 2);
+  if (colPI) {
+    let filled = 0;
+    for (let r = 3; r <= ws1.rowCount; r++) {
+      const row = ws1.getRow(r);
+      const v1 = String(row.getCell(colPI).value   || '').trim();
+      const v2 = String(row.getCell(colPI+1).value || '').trim();
+      if (!v1 && v2) { row.getCell(colPI).value = v2; filled++; }
+      row.getCell(colPI+1).value = null;
+    }
+    ws1.spliceColumns(colPI+1, 1);
+  }
+
+  // ── STEP 6: Basic Compliance ──────────────────────────────
+  const colBC = findCol(ws1, 'Basic Compliance', 2);
+  const req   = ['business registered with cipc','business bank account','tax clearance'];
+  let bcFlags = 0;
+  if (colBC) {
+    for (let r = 3; r <= ws1.rowCount; r++) {
+      const row = ws1.getRow(r);
+      const v   = String(row.getCell(colBC).value || '').toLowerCase();
+      if (!v || !req.every(x => v.includes(x))) {
+        setFill(row.getCell(colBC), RED_FILL);
+        bcFlags++;
+        stats.bcFlags++;
+      }
+    }
+  }
+
+  // ── STEP 7: Years in Operation ────────────────────────────
+  const colBRD = findCol(ws1, 'Business Registration Date', 2);
+  if (colBRD) {
+    safeSpliceInsert(ws1, colBRD+1, 1);
+    ws1.getRow(1).getCell(colBRD+1).value = 'Years in Operation';
+    ws1.getRow(2).getCell(colBRD+1).value = 'Years in Operation';
+    for (let r = 3; r <= ws1.rowCount; r++) {
+      const row = ws1.getRow(r);
+      const rv  = row.getCell(colBRD).value;
+      let yrs = 'Unknown';
+      if (rv) {
+        const reg = rv instanceof Date ? rv : new Date(String(rv).substring(0,10));
+        if (!isNaN(reg)) yrs = Math.round(Math.max(0, (today - reg) / (365.25 * 864e5)) * 100) / 100;
+      }
+      row.getCell(colBRD+1).value = yrs;
+    }
+  }
+
+  // ── STEP 8: Revenue flagging + deselection ────────────────
+  const colR1  = findCol(ws1, '2023/2024', 2);
+  const colR2  = findCol(ws1, '2024/2025', 2);
+  const colR3  = findCol(ws1, '2025/2026', 2);
+  const colYIO = findCol(ws1, 'Years in Operation', 2);
+  if (!colR3) throw new Error("Revenue column '2025/2026' not found — check the file has revenue data.");
+
+  // IQR upper fence
+  const rvArr = [];
+  for (let r = 3; r <= ws1.rowCount; r++) {
+    const v = parseRev(ws1.getRow(r).getCell(colR3).value);
+    if (v !== null) rvArr.push(v);
+  }
+  let uf = 999999999;
+  if (rvArr.length > 4) {
+    const s = [...rvArr].sort((a,b) => a-b);
+    const q1 = s[Math.floor(s.length * .25)], q3 = s[Math.floor(s.length * .75)];
+    uf = q3 + 3 * (q3 - q1);
+  }
+
+  safeSpliceInsert(ws1, colR3+1, 1);
+  ws1.getRow(1).getCell(colR3+1).value = 'Revenue Deselection / Follow-up';
+  ws1.getRow(2).getCell(colR3+1).value = 'Revenue Deselection / Follow-up';
+  const colDesel = colR3 + 1;
+
+  for (let r = 3; r <= ws1.rowCount; r++) {
+    const row = ws1.getRow(r);
+    let desel = '', follow = '';
+
+    [[colR1,'2023/2024'],[colR2,'2024/2025'],[colR3,'2025/2026']].forEach(([col, lbl]) => {
+      if (!col) return;
+      const raw = row.getCell(col).value, rv = parseRev(raw);
+      if (raw === null || raw === '') {
+        setFill(row.getCell(col), ORANGE_FILL);
+        follow += `${lbl} blank; `;
+      } else if (rv !== null && rv > uf) {
+        setFill(row.getCell(col), ORANGE_FILL);
+        follow += `${lbl} outlier (R${rv.toLocaleString()}); `;
+      }
+    });
+
+    const rv6 = parseRev(row.getCell(colR3).value);
+    const yio = parseFloat(row.getCell(colYIO).value);
+
+    if (rv6 === null) {
+      follow += 'Latest revenue missing; ';
+    } else if (!isNaN(yio)) {
+      if      (rv6 < C.REV_MIN)                desel += `Revenue R${rv6.toLocaleString()} below R2,500 minimum; `;
+      else if (yio >= 2 && yio < 4 && rv6 < C.REV_2_4)  desel += `2–4yrs: revenue R${rv6.toLocaleString()} below required R50,000; `;
+      else if (yio >= 4 && rv6 < C.REV_4PLUS)            desel += `>4yrs: revenue R${rv6.toLocaleString()} below required R150,000; `;
+    } else {
+      follow += 'Years in operation unknown; ';
+    }
+
+    const cell = row.getCell(colDesel);
+    if (desel) {
+      cell.value = 'DESELECT: ' + desel.replace(/; $/, '');
+      setFont(cell, RED_FONT);
+      stats.deselected++;
+    } else if (follow) {
+      cell.value = 'FOLLOW-UP REQUIRED: ' + follow.replace(/; $/, '');
+      setFont(cell, ORANGE_FONT);
+      stats.followup++;
+    } else {
+      cell.value = 'Meets revenue criteria';
+      stats.ok++;
+    }
+  }
+
+  // ── STEP 9: Employment sense-check ────────────────────────
+  const colCas = findCol(ws1, 'Casual Workers', 2);
+  const colPT  = findCol(ws1, 'Part-time Workers', 2);
+  const colFT  = findCol(ws1, 'Full-time Workers', 2);
+  let   colRev = findCol(ws1, '2025/2026', 2);
+
+  if (colFT) {
+    safeSpliceInsert(ws1, colFT+1, 1);
+    const colSense = colFT + 1;
+    if (colRev && colRev >= colFT) colRev++;
+    ws1.getRow(1).getCell(colSense).value = 'Employment Sense-Check';
+    ws1.getRow(2).getCell(colSense).value = 'Employment Sense-Check';
+    const ANN = C.MIN_MONTHLY_WAGE * 12;
+
+    for (let r = 3; r <= ws1.rowCount; r++) {
+      const row  = ws1.getRow(r);
+      const cas  = safeInt(row.getCell(colCas).value);
+      const pt   = safeInt(row.getCell(colPT).value);
+      const ft   = safeInt(row.getCell(colFT).value);
+      const tot  = cas + pt + ft;
+      const w    = ft + pt * .5 + cas * .25;
+      const rraw = row.getCell(colRev).value;
+      const rblank = (rraw === null || rraw === '');
+      const rev  = rblank ? null : parseRev(rraw);
+
+      const flags = [];
+      if (ft > C.FT_HARD_LIMIT)
+        flags.push(`FT count (${ft}) far exceeds cohort norm — verify with applicant`);
+      if (ft >= 2 && rev && rev > 0) {
+        const wb2 = ft * ANN;
+        if (wb2 > rev * C.WAGE_BILL_MULT)
+          flags.push(`Implied FT wage bill (~R${wb2.toLocaleString()}) exceeds 90% of revenue (R${rev.toLocaleString()}) — insufficient margin`);
+      }
+      if (w > 2 && rev && rev > 0) {
+        const ratio = rev / w;
+        if (ratio < C.REV_WEIGHTED_FLOOR)
+          flags.push(`Revenue per weighted employee (R${Math.round(ratio).toLocaleString()}) below cohort floor`);
+      }
+      if (tot > C.TOTAL_HC_LIMIT)
+        flags.push(`Total headcount (${tot}: ${ft}FT+${pt}PT+${cas}C) unusually high`);
+      if (pt > C.PT_HARD_LIMIT && ft === 0 && (rblank || (rev !== null && rev === 0)))
+        flags.push(`High part-time (${pt} PT, 0 FT) with zero/no revenue — verify`);
+      if (rblank && (ft >= 1 || tot > 3))
+        flags.push(`Revenue not reported — cannot verify headcount (${ft}FT+${pt}PT+${cas}C)`);
+
+      const cell = row.getCell(colSense);
+      if (flags.length) {
+        cell.value = 'FOLLOW-UP: ' + flags.join('; ');
+        setFill(cell, ORANGE_FILL);
+        setFont(cell, BROWN_FONT);
+        stats.empFlags++;
+      } else {
+        cell.value = 'No employment anomalies detected';
+      }
+    }
+  }
+
+  // ── Bold header rows ──────────────────────────────────────
+  for (let r = 1; r <= 2; r++) {
+    ws1.getRow(r).eachCell(cell => {
+      setFont(cell, { bold: true });
+    });
+  }
+
+  const total  = ws1.rowCount - 2;
+
+  const outBuf = await wb.xlsx.writeBuffer();
+  return { bytes: outBuf, stats, total };
+}
+
+// ════════════════════════════════════════════════════════════
+// RUN BUTTON
+// ════════════════════════════════════════════════════════════
+runBtn.addEventListener('click', async () => {
+  if (!selectedFile) return;
+
+  hideError();
+  resultsCard.classList.remove('visible');
+  procIndicator.classList.add('visible');
+  runBtn.disabled = true;
+  runBtn.classList.add('processing');
+  runBtnText.textContent = 'Processing…';
+
+  try {
+    const { bytes, stats, total } = await processFile(selectedFile);
+
+    procIndicator.classList.remove('visible');
+    runBtn.classList.remove('processing');
+    runBtnText.textContent = 'Run Processor';
+    runBtn.disabled = false;
+
+    document.getElementById('sDesel').textContent      = stats.deselected;
+    document.getElementById('sFollow').textContent     = stats.followup;
+    document.getElementById('sEmp').textContent        = stats.empFlags;
+    document.getElementById('sAge').textContent        = stats.ageFlags;
+    document.getElementById('sCompliance').textContent = stats.bcFlags;
+    document.getElementById('sOk').textContent         = stats.ok;
+    document.getElementById('recordPill').textContent  = `${total} applicants`;
+    resultsCard.classList.add('visible');
+
+    const blob = new Blob([bytes], { type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+    const url  = URL.createObjectURL(blob);
+    const base = selectedFile.name.replace(/\.[^.]+$/, '');
+    const ts   = new Date().toISOString().slice(0,16).replace(/[-T:]/g,'').replace(/(\d{8})(\d{4})/, '$1_$2');
+    dlBtn.href     = url;
+    dlBtn.download = `${base}_Processed_${ts}.xlsx`;
+    document.getElementById('dlBtnText').textContent = `Download  ${base}_Processed_${ts}.xlsx`;
+
+    resultsCard.scrollIntoView({ behavior:'smooth', block:'start' });
+
+  } catch(err) {
+    procIndicator.classList.remove('visible');
+    runBtn.classList.remove('processing');
+    runBtnText.textContent = 'Run Processor';
+    runBtn.disabled = false;
+    showError(err.message);
+    console.error(err);
+  }
+});
+</script>
+</body>
+</html>
