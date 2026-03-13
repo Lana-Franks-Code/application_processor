@@ -988,7 +988,7 @@ function safeInt(v) { const n = parseInt(v); return isNaN(n) ? 0 : Math.max(0, n
 
 function findCol(ws, text, headerRowNum) {
   const row = ws.getRow(headerRowNum);
-  const limit = Math.min(ws.columnCount + 5, 300);
+  const limit = Math.min(Math.max(ws.columnCount + 10, 70), 300);
   for (let c = 1; c <= limit; c++) {
     const v = String(row.getCell(c).value || '').toLowerCase();
     if (v.includes(text.toLowerCase())) return c;
@@ -1327,8 +1327,8 @@ async function processFile(file) {
   // ── STEP 12: Programme Eligibility ────────────────────────
   const colIndustry  = findCol(ws1, 'Primary Industry', 2);
   const colProvince  = findCol(ws1, 'Province', 1) || findCol(ws1, 'Province', 2);
-  const colPartTypeR = ws1.columnCount - 1; // Participant Type col
-  const colStageR    = ws1.columnCount;     // Maturity Stage col
+  const colPartTypeR = findCol(ws1, 'Participant Type', 2) || findCol(ws1, 'Participant Type', 1);
+  const colStageR    = findCol(ws1, 'Business Maturity Stage', 2) || findCol(ws1, 'Business Maturity Stage', 1);
   const colRevFinal  = findCol(ws1, '2025/2026', 2);
   const colFTFinal   = findCol(ws1, 'Full-time Workers', 2);
   const colDeselF    = findCol(ws1, 'Revenue Deselection', 2);
@@ -1336,6 +1336,8 @@ async function processFile(file) {
   const colBCF       = findCol(ws1, 'Basic Compliance', 2);
   const colPTFinal   = findCol(ws1, 'Part-time Workers', 2);
   const REQ          = ['business registered with cipc','business bank account','tax clearance'];
+  if (!colStageR)    throw new Error("Business Maturity Stage column not found — processing order issue.");
+  if (!colPartTypeR) throw new Error("Participant Type column not found — processing order issue.");
 
   const colElig = ws1.columnCount + 1;
   ws1.getRow(1).getCell(colElig).value = 'Programme Eligibility';
