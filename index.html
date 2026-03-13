@@ -344,6 +344,55 @@ main {
 
 .flag-row--last { border-bottom: none; }
 
+.province-section {
+  border-bottom: 1px solid var(--border);
+}
+
+.province-table {
+  width: 100%;
+}
+
+.province-row {
+  display: grid;
+  grid-template-columns: 1fr 80px 80px;
+  align-items: center;
+  padding: 10px 24px;
+  border-bottom: 1px solid #F5F0E8;
+  font-size: 0.85rem;
+  gap: 8px;
+}
+
+.province-row:last-child { border-bottom: none; }
+
+.province-row-header {
+  font-size: 0.68rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--muted);
+  padding: 8px 24px 6px;
+  display: grid;
+  grid-template-columns: 1fr 80px 80px;
+  gap: 8px;
+}
+
+.province-name { font-weight: 500; }
+.province-count { text-align: center; font-family: 'Playfair Display', serif; font-size: 1.3rem; line-height: 1; }
+.pcount-build { color: var(--green); }
+.pcount-grow  { color: #4472C4; }
+
+.province-bar-wrap {
+  grid-column: 1 / -1;
+  display: flex;
+  height: 4px;
+  border-radius: 2px;
+  overflow: hidden;
+  background: var(--cream);
+  margin-top: 4px;
+}
+.province-bar-build { background: var(--green); }
+.province-bar-grow  { background: #4472C4; }
+
 .summary-section-label {
   font-size: 0.68rem;
   letter-spacing: 0.12em;
@@ -754,6 +803,11 @@ footer {
       </div>
     </div>
 
+    <div class="province-section" id="provinceSection">
+      <div class="summary-section-label" style="border-top:none">Eligible Candidates by Province</div>
+      <div class="province-table" id="provinceTable"></div>
+    </div>
+
     <div class="download-area">
       <a class="dl-btn" id="dlBtn" href="#" download>
         <svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
@@ -967,7 +1021,7 @@ async function processFile(file) {
   const ws1 = wb.getWorksheet('Summary Data');
   const ws2 = wb.getWorksheet('How many people did your bus_0');
   const today = new Date(); today.setHours(0,0,0,0);
-  const stats = { deselected:0, followup:0, empFlags:0, ok:0, ageFlags:0, bcFlags:0, alumni:0, external:0, build:0, grow:0, ineligible:0, stage2:0, stage3:0, stage4:0, stageDesel:0, stageUnknown:0 };
+  const stats = { deselected:0, followup:0, empFlags:0, ok:0, ageFlags:0, bcFlags:0, alumni:0, external:0, build:0, grow:0, ineligible:0, stage2:0, stage3:0, stage4:0, stageDesel:0, stageUnknown:0, provinces:{} };
   const lastRow = ws1.rowCount;
 
   // ── STEP 1: Merge employment data ─────────────────────────
@@ -1253,6 +1307,10 @@ async function processFile(file) {
     if (s1===null || s2===null || s3===null) {
       cell.value = 'Insufficient data'; setFill(cell, ORANGE_FILL); stats.stageUnknown++; continue;
     }
+    // Highlight individual cells that scored Ideation (1) before deciding overall
+    if (s1 === 1 && colProd)  setFill(row.getCell(colProd),  RED_FILL);
+    if (s2 === 1 && colRevM)  setFill(row.getCell(colRevM),  RED_FILL);
+    if (s3 === 1 && colFTM)   setFill(row.getCell(colFTM),   RED_FILL);
     if (s1===1 || s2===1 || s3===1) {
       cell.value = 'DESELECT: Ideation stage'; setFont(cell, RED_FONT); stats.stageDesel++; continue;
     }
@@ -1268,6 +1326,7 @@ async function processFile(file) {
 
   // ── STEP 12: Programme Eligibility ────────────────────────
   const colIndustry  = findCol(ws1, 'Primary Industry', 2);
+  const colProvince  = findCol(ws1, 'Province', 1) || findCol(ws1, 'Province', 2);
   const colPartTypeR = ws1.columnCount - 1; // Participant Type col
   const colStageR    = ws1.columnCount;     // Maturity Stage col
   const colRevFinal  = findCol(ws1, '2025/2026', 2);
@@ -1319,9 +1378,19 @@ async function processFile(file) {
     // Build: Stage 2 or 3, rev R2,500–R599,999
     const buildOk = (stage === 2 || stage === 3) && rev6 !== null && rev6 >= C.REV_MIN && rev6 < C.GROW_REV_MIN;
 
-    if (growOk)       { cell.value = 'Grow Programme';  setStyle(cell, BLUE_FILL, WHITE_FONT); stats.grow++; }
-    else if (buildOk) { cell.value = 'Build Programme'; setStyle(cell, GREEN_FILL, GREEN_FONT); stats.build++; }
-    else              { cell.value = 'Ineligible';       setStyle(cell, RED_FILL, WHITE_FONT);  stats.ineligible++; }
+    if (growOk) {
+      cell.value = 'Grow Programme'; setStyle(cell, BLUE_FILL, WHITE_FONT); stats.grow++;
+      const pv = String(colProvince ? row.getCell(colProvince).value||'Unknown' : 'Unknown').trim();
+      if (!stats.provinces[pv]) stats.provinces[pv] = {build:0,grow:0};
+      stats.provinces[pv].grow++;
+    } else if (buildOk) {
+      cell.value = 'Build Programme'; setStyle(cell, GREEN_FILL, GREEN_FONT); stats.build++;
+      const pv = String(colProvince ? row.getCell(colProvince).value||'Unknown' : 'Unknown').trim();
+      if (!stats.provinces[pv]) stats.provinces[pv] = {build:0,grow:0};
+      stats.provinces[pv].build++;
+    } else {
+      cell.value = 'Ineligible'; setStyle(cell, RED_FILL, WHITE_FONT); stats.ineligible++;
+    }
   }
 
   // ── Bold header rows ──────────────────────────────────────
@@ -1374,6 +1443,43 @@ runBtn.addEventListener('click', async () => {
     document.getElementById('sAge').textContent         = stats.ageFlags;
     document.getElementById('sCompliance').textContent  = stats.bcFlags;
     document.getElementById('recordPill').textContent   = `${total} applicants`;
+
+    // ── Province breakdown ──────────────────────────────────
+    const provData = stats.provinces;
+    const provNames = Object.keys(provData).sort();
+    const maxTotal = Math.max(...provNames.map(p => provData[p].build + provData[p].grow), 1);
+    const table = document.getElementById('provinceTable');
+    table.innerHTML = '';
+
+    if (provNames.length === 0) {
+      table.innerHTML = '<div style="padding:16px 24px;font-size:0.85rem;color:var(--muted)">No eligible candidates found.</div>';
+    } else {
+      const hdr = document.createElement('div');
+      hdr.className = 'province-row-header';
+      hdr.innerHTML = '<span>Province</span><span style="text-align:center">Build</span><span style="text-align:center">Grow</span>';
+      table.appendChild(hdr);
+
+      provNames.forEach(prov => {
+        const { build, grow } = provData[prov];
+        const total = build + grow;
+        const buildPct = Math.round((build / maxTotal) * 100);
+        const growPct  = Math.round((grow  / maxTotal) * 100);
+        const row = document.createElement('div');
+        row.style.borderBottom = '1px solid #F5F0E8';
+        row.style.padding = '10px 24px 8px';
+        row.innerHTML = `
+          <div style="display:grid;grid-template-columns:1fr 80px 80px;gap:8px;align-items:center">
+            <span class="province-name">${prov}</span>
+            <span class="province-count pcount-build" style="text-align:center">${build||'—'}</span>
+            <span class="province-count pcount-grow"  style="text-align:center">${grow||'—'}</span>
+          </div>
+          ${total > 0 ? `<div class="province-bar-wrap" style="margin-top:6px">
+            <div class="province-bar-build" style="width:${buildPct}%"></div>
+            <div class="province-bar-grow"  style="width:${growPct}%"></div>
+          </div>` : ''}`;
+        table.appendChild(row);
+      });
+    }
     resultsCard.classList.add('visible');
 
     const blob = new Blob([bytes], { type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
