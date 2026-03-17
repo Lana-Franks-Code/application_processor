@@ -344,6 +344,57 @@ main {
 
 .flag-row--last { border-bottom: none; }
 
+.flag-row--expandable {
+  cursor: pointer;
+  user-select: none;
+}
+.flag-row--expandable:hover { background: #FDFAF5; }
+
+.expand-hint {
+  font-size: 0.7rem;
+  font-weight: 400;
+  color: var(--muted);
+  letter-spacing: 0.05em;
+  margin-left: 6px;
+  transition: color 0.2s;
+}
+.flag-row--expandable:hover .expand-hint { color: var(--red); }
+
+.inelig-breakdown {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.35s ease;
+  background: #FDF8F8;
+  border-bottom: 1px solid #F0DDD8;
+}
+.inelig-breakdown.open { max-height: 600px; }
+
+.inelig-inner {
+  padding: 8px 0 4px;
+}
+
+.inelig-reason-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 32px 8px 44px;
+  font-size: 0.82rem;
+  gap: 12px;
+  border-bottom: 1px solid #F5EDED;
+}
+.inelig-reason-row:last-child { border-bottom: none; }
+
+.inelig-reason-label { color: var(--ink); flex: 1; }
+.inelig-reason-desc  { color: var(--muted); font-size: 0.75rem; margin-top: 1px; }
+.inelig-reason-count {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.4rem;
+  color: var(--red);
+  min-width: 36px;
+  text-align: right;
+  flex-shrink: 0;
+}
+
 .province-section {
   border-bottom: 1px solid var(--border);
 }
@@ -662,15 +713,20 @@ footer {
         </div>
         <div class="flag-count col-green" id="sBuild">—</div>
       </div>
-      <div class="flag-row">
+      <div class="flag-row flag-row--expandable" id="ineligRow" onclick="toggleInelig()">
         <div class="flag-left">
           <span class="flag-dot flag-dot--red"></span>
           <div>
-            <div class="flag-label">Ineligible</div>
+            <div class="flag-label">Ineligible <span class="expand-hint" id="ineligHint">▸ why?</span></div>
             <div class="flag-desc">Does not meet programme criteria</div>
           </div>
         </div>
         <div class="flag-count col-red" id="sInelig">—</div>
+      </div>
+
+      <!-- Ineligibility breakdown — hidden until expanded -->
+      <div class="inelig-breakdown" id="ineligBreakdown">
+        <div class="inelig-inner" id="ineligInner"></div>
       </div>
 
       <div class="summary-section-label">Business Maturity</div>
@@ -970,11 +1026,21 @@ function setFile(f) {
   hideError();
   resultsCard.classList.remove('visible');
   procIndicator.classList.remove('visible');
+  document.getElementById('ineligBreakdown').classList.remove('open');
+  document.getElementById('ineligHint').textContent = '▸ why?';
+  document.getElementById('ineligInner').innerHTML = '';
 }
 
 // ════════════════════════════════════════════════════════════
 // HELPERS
 // ════════════════════════════════════════════════════════════
+function toggleInelig() {
+  const bd = document.getElementById('ineligBreakdown');
+  const hint = document.getElementById('ineligHint');
+  const open = bd.classList.toggle('open');
+  hint.textContent = open ? '▾ hide' : '▸ why?';
+}
+
 function showError(msg) { errorBox.textContent = '⚠ ' + msg; errorBox.classList.add('visible'); }
 function hideError()    { errorBox.classList.remove('visible'); }
 
@@ -1021,7 +1087,7 @@ async function processFile(file) {
   const ws1 = wb.getWorksheet('Summary Data');
   const ws2 = wb.getWorksheet('How many people did your bus_0');
   const today = new Date(); today.setHours(0,0,0,0);
-  const stats = { deselected:0, followup:0, empFlags:0, ok:0, ageFlags:0, bcFlags:0, alumni:0, external:0, build:0, grow:0, ineligible:0, stage2:0, stage3:0, stage4:0, stageDesel:0, stageUnknown:0, provinces:{} };
+  const stats = { deselected:0, followup:0, empFlags:0, ok:0, ageFlags:0, bcFlags:0, alumni:0, external:0, build:0, grow:0, ineligible:0, stage2:0, stage3:0, stage4:0, stageDesel:0, stageUnknown:0, provinces:{}, ineligReasons:{ age:0, compliance:0, revDesel:0, ideation:0, growthStage:0, noStageMatch:0, revTooLow:0, growFT:0, growIndustry:0 } };
   const lastRow = ws1.rowCount;
 
   // ── STEP 1: Merge employment data ─────────────────────────
@@ -1365,7 +1431,15 @@ async function processFile(file) {
     const matDesel= matVal.startsWith('DESELECT');
 
     if (ageFail || bcFail || revDesel || matDesel) {
-      cell.value = 'Ineligible'; setStyle(cell, RED_FILL, WHITE_FONT); stats.ineligible++; continue;
+      cell.value = 'Ineligible'; setStyle(cell, RED_FILL, WHITE_FONT); stats.ineligible++;
+      if (ageFail)   stats.ineligReasons.age++;
+      if (bcFail)    stats.ineligReasons.compliance++;
+      if (revDesel)  stats.ineligReasons.revDesel++;
+      if (matDesel)  {
+        if (matVal.includes('Ideation')) stats.ineligReasons.ideation++;
+        else stats.ineligReasons.growthStage++;
+      }
+      continue;
     }
 
     const stageMatch = matVal.match(/Stage (\d)/);
@@ -1392,6 +1466,19 @@ async function processFile(file) {
       stats.provinces[pv].build++;
     } else {
       cell.value = 'Ineligible'; setStyle(cell, RED_FILL, WHITE_FONT); stats.ineligible++;
+      // Diagnose why neither programme matched
+      if (stage === null)      stats.ineligReasons.noStageMatch++;
+      else if (stage === 1)    stats.ineligReasons.ideation++;
+      else if (stage === 5)    stats.ineligReasons.growthStage++;
+      else if (stage === 4) {
+        // Could have qualified for Grow but something failed
+        if (ft < C.GROW_FT_MIN)          stats.ineligReasons.growFT++;
+        else if (!growIndustryOk)         stats.ineligReasons.growIndustry++;
+        else                              stats.ineligReasons.revDesel++;
+      } else {
+        // Stage 2 or 3 but revenue out of Build range
+        stats.ineligReasons.revTooLow++;
+      }
     }
   }
 
@@ -1437,6 +1524,31 @@ runBtn.addEventListener('click', async () => {
     document.getElementById('sGrow').textContent        = stats.grow;
     document.getElementById('sBuild').textContent       = stats.build;
     document.getElementById('sInelig').textContent      = stats.ineligible;
+
+    // ── Ineligibility reasons ───────────────────────────────
+    const R = stats.ineligReasons;
+    const reasons = [
+      { label: 'Below revenue threshold',   desc: 'Revenue too low for their years in operation',                count: R.revDesel },
+      { label: 'Ideation stage',            desc: 'One or more maturity scores at Stage 1 (Ideation)',          count: R.ideation },
+      { label: 'Wrong maturity stage',      desc: 'Stage 2–3 revenue doesn't meet Build range, or Stage 5+',   count: R.revTooLow + R.growthStage },
+      { label: 'Insufficient FT employees', desc: 'Stage 4 candidate but fewer than 2 full-time employees',     count: R.growFT },
+      { label: 'Industry restriction',      desc: 'External applicant in Automotive — ineligible for Grow',     count: R.growIndustry },
+      { label: 'Age outside range',         desc: 'Applicant is under 18 or over 49',                          count: R.age },
+      { label: 'Compliance gap',            desc: 'Missing CIPC registration, bank account, or tax clearance',  count: R.compliance },
+      { label: 'Missing maturity data',     desc: 'Could not determine stage — product/revenue/team data absent', count: R.noStageMatch },
+    ].filter(r => r.count > 0).sort((a,b) => b.count - a.count);
+
+    const inner = document.getElementById('ineligInner');
+    inner.innerHTML = reasons.length === 0
+      ? '<div style="padding:12px 32px;font-size:0.82rem;color:var(--muted)">No ineligible candidates.</div>'
+      : reasons.map(r => `
+          <div class="inelig-reason-row">
+            <div>
+              <div class="inelig-reason-label">${r.label}</div>
+              <div class="inelig-reason-desc">${r.desc}</div>
+            </div>
+            <div class="inelig-reason-count">${r.count}</div>
+          </div>`).join('');
     document.getElementById('sAlumni').textContent      = stats.alumni;
     document.getElementById('sExternal').textContent    = stats.external;
     document.getElementById('sDesel').textContent       = stats.deselected;
