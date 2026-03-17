@@ -474,6 +474,117 @@ main {
 .dl-btn:hover { background: #226040; transform: translateY(-1px); }
 .dl-btn svg { width: 18px; height: 18px; fill: white; flex-shrink: 0; }
 
+/* ── INELIG BREAKDOWN ──────────────────────────────────────── */
+.inelig-breakdown {
+  display: none;
+  background: #FDF5F5;
+  border-top: 1px solid #F0D0D0;
+  padding: 12px 24px 16px 48px;
+}
+.inelig-breakdown.open { display: block; }
+.inelig-breakdown-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px 24px;
+  margin-top: 4px;
+}
+.inelig-reason-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.82rem;
+  gap: 12px;
+}
+.inelig-reason-label {
+  color: var(--muted);
+  font-weight: 400;
+}
+.inelig-reason-count {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.05rem;
+  color: var(--red);
+  min-width: 28px;
+  text-align: right;
+  flex-shrink: 0;
+}
+.inelig-toggle {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 0.75rem;
+  color: var(--muted);
+  font-family: 'Outfit', sans-serif;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  transition: color 0.15s;
+}
+.inelig-toggle:hover { color: var(--red); }
+.inelig-toggle svg {
+  width: 12px; height: 12px;
+  transition: transform 0.2s;
+  flex-shrink: 0;
+}
+.inelig-toggle.open svg { transform: rotate(180deg); }
+.inelig-note {
+  font-size: 0.75rem;
+  color: var(--muted);
+  font-weight: 300;
+  margin-top: 10px;
+  font-style: italic;
+}
+
+/* ── SUMMARY TABLES (province / trade) ─────────────────────── */
+.summary-table-section {
+  border-bottom: 1px solid var(--border);
+}
+.summary-table {
+  width: 100%;
+}
+.summary-table-header {
+  font-size: 0.68rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--muted);
+  padding: 8px 24px 6px;
+  display: grid;
+  gap: 8px;
+}
+.summary-table-header.cols-4 { grid-template-columns: 1fr 64px 64px 64px 64px; }
+.summary-row {
+  padding: 9px 24px 7px;
+  border-bottom: 1px solid #F5F0E8;
+  font-size: 0.85rem;
+  display: grid;
+  gap: 8px;
+  align-items: center;
+}
+.summary-row:last-child { border-bottom: none; }
+.summary-row.cols-4 { grid-template-columns: 1fr 64px 64px 64px 64px; }
+.summary-row-name { font-weight: 500; }
+.summary-count { text-align: center; font-family: 'Playfair Display', serif; font-size: 1.1rem; line-height: 1; }
+.scount-total   { color: var(--ink); }
+.scount-build   { color: var(--green); }
+.scount-grow    { color: #4472C4; }
+.scount-inelig  { color: var(--red); }
+.summary-bar-wrap {
+  grid-column: 1 / -1;
+  display: flex;
+  height: 3px;
+  border-radius: 2px;
+  overflow: hidden;
+  background: var(--cream);
+  margin-top: 3px;
+}
+.summary-bar-build  { background: var(--green); }
+.summary-bar-grow   { background: #4472C4; }
+.summary-bar-inelig { background: #E8B0B0; }
+
 /* ── ERROR ──────────────────────────────────────────────────── */
 .error-box {
   display: none;
@@ -662,15 +773,50 @@ footer {
         </div>
         <div class="flag-count col-green" id="sBuild">—</div>
       </div>
-      <div class="flag-row">
-        <div class="flag-left">
-          <span class="flag-dot flag-dot--red"></span>
-          <div>
-            <div class="flag-label">Ineligible</div>
-            <div class="flag-desc">Does not meet programme criteria</div>
+      <div class="flag-row" style="flex-direction:column;align-items:stretch;padding-bottom:0;gap:0">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding-bottom:16px">
+          <div class="flag-left">
+            <span class="flag-dot flag-dot--red"></span>
+            <div>
+              <div class="flag-label">Ineligible</div>
+              <div class="flag-desc">Does not meet programme criteria</div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:16px">
+            <button class="inelig-toggle" id="ineligToggle" onclick="toggleIneligBreakdown()">
+              <span id="ineligToggleLabel">Reasons</span>
+              <svg viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M2 4l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </button>
+            <div class="flag-count col-red" id="sInelig">—</div>
           </div>
         </div>
-        <div class="flag-count col-red" id="sInelig">—</div>
+      </div>
+      <div class="inelig-breakdown" id="ineligBreakdown">
+        <div class="inelig-breakdown-grid">
+          <div class="inelig-reason-row">
+            <span class="inelig-reason-label">Age out of range (External only)</span>
+            <span class="inelig-reason-count" id="rAge">—</span>
+          </div>
+          <div class="inelig-reason-row">
+            <span class="inelig-reason-label">Failed basic compliance</span>
+            <span class="inelig-reason-count" id="rCompliance">—</span>
+          </div>
+          <div class="inelig-reason-row">
+            <span class="inelig-reason-label">Revenue below threshold</span>
+            <span class="inelig-reason-count" id="rRevenue">—</span>
+          </div>
+          <div class="inelig-reason-row">
+            <span class="inelig-reason-label">Ideation or Growth stage</span>
+            <span class="inelig-reason-count" id="rStage">—</span>
+          </div>
+          <div class="inelig-reason-row">
+            <span class="inelig-reason-label">Does not fit Build or Grow</span>
+            <span class="inelig-reason-count" id="rNoFit">—</span>
+          </div>
+        </div>
+        <div class="inelig-note">Note: a single applicant may trigger more than one reason.</div>
       </div>
 
       <div class="summary-section-label">Business Maturity</div>
@@ -803,9 +949,19 @@ footer {
       </div>
     </div>
 
-    <div class="province-section" id="provinceSection">
-      <div class="summary-section-label" style="border-top:none">Eligible Candidates by Province</div>
-      <div class="province-table" id="provinceTable"></div>
+    <div class="summary-table-section" id="totalProvinceSection">
+      <div class="summary-section-label" style="border-top:none">Total Applicants by Province</div>
+      <div class="summary-table" id="totalProvinceTable"></div>
+    </div>
+
+    <div class="summary-table-section" id="tradeSection">
+      <div class="summary-section-label" style="border-top:none">Eligible Applicants by Industry</div>
+      <div class="summary-table" id="tradeTable"></div>
+    </div>
+
+    <div class="summary-table-section" id="eligProvinceSection">
+      <div class="summary-section-label" style="border-top:none">Eligible Applicants by Province</div>
+      <div class="summary-table" id="eligProvinceTable"></div>
     </div>
 
     <div class="download-area">
@@ -1021,7 +1177,7 @@ async function processFile(file) {
   const ws1 = wb.getWorksheet('Summary Data');
   const ws2 = wb.getWorksheet('How many people did your bus_0');
   const today = new Date(); today.setHours(0,0,0,0);
-  const stats = { deselected:0, followup:0, empFlags:0, ok:0, ageFlags:0, bcFlags:0, alumni:0, external:0, build:0, grow:0, ineligible:0, stage2:0, stage3:0, stage4:0, stageDesel:0, stageUnknown:0, provinces:{} };
+  const stats = { deselected:0, followup:0, empFlags:0, ok:0, ageFlags:0, bcFlags:0, alumni:0, external:0, build:0, grow:0, ineligible:0, stage2:0, stage3:0, stage4:0, stageDesel:0, stageUnknown:0, provinces:{}, allProvinces:{}, trades:{}, ineligReasons:{ age:0, compliance:0, revenue:0, stage:0, noFit:0 } };
   const lastRow = ws1.rowCount;
 
   // ── STEP 1: Merge employment data ─────────────────────────
@@ -1064,30 +1220,6 @@ async function processFile(file) {
   const colFN = findCol(ws1, 'Full Name', 1);
   const colEM = findCol(ws1, 'Email', 1);
   [colFN, colEM].filter(Boolean).sort((a,b) => b-a).forEach(c => ws1.spliceColumns(c, 1));
-
-  // ── STEP 3: Age ───────────────────────────────────────────
-  const colDOB = findCol(ws1, 'Date of Birth', 2);
-  safeSpliceInsert(ws1, colDOB + 1, 1);
-  ws1.getRow(1).getCell(colDOB+1).value = 'Age (Years)';
-  ws1.getRow(2).getCell(colDOB+1).value = 'Age (Years)';
-  let ageFlags = 0;
-  for (let r = 3; r <= ws1.rowCount; r++) {
-    const row = ws1.getRow(r);
-    const dv  = row.getCell(colDOB).value;
-    let age = 'Invalid DOB', flagRed = true;
-    if (dv) {
-      let dob = dv instanceof Date ? dv : new Date(String(dv).substring(0,10));
-      if (!isNaN(dob)) {
-        let a = today.getFullYear() - dob.getFullYear();
-        if (today.getMonth() < dob.getMonth() ||
-            (today.getMonth() === dob.getMonth() && today.getDate() < dob.getDate())) a--;
-        age = a;
-        flagRed = (a < C.MIN_AGE || a > C.MAX_AGE);
-      }
-    }
-    row.getCell(colDOB+1).value = age;
-    if (flagRed) { setFill(row.getCell(colDOB+1), RED_FILL); ageFlags++; stats.ageFlags++; }
-  }
 
   // ── STEP 4: Deduplicate contacts ──────────────────────────
   const colC  = findCol(ws1, 'Contact Number', 2);
@@ -1288,6 +1420,37 @@ async function processFile(file) {
     else             { row.getCell(colPartType).value = 'External'; stats.external++; }
   }
 
+  // ── STEP 3 (moved): Age ───────────────────────────────────
+  // Runs after Step 10 so Participant Type is known; age range only flags Externals.
+  const colDOB = findCol(ws1, 'Date of Birth', 2);
+  safeSpliceInsert(ws1, colDOB + 1, 1);
+  ws1.getRow(1).getCell(colDOB+1).value = 'Age (Years)';
+  ws1.getRow(2).getCell(colDOB+1).value = 'Age (Years)';
+  // Resolve Participant Type AFTER the splice — inserting a column shifts indices to its right
+  const colPartTypeAge = findCol(ws1, 'Participant Type', 2) || findCol(ws1, 'Participant Type', 1);
+  let ageFlags = 0;
+  for (let r = 3; r <= ws1.rowCount; r++) {
+    const row = ws1.getRow(r);
+    const dv  = row.getCell(colDOB).value;
+    const pt  = String(row.getCell(colPartTypeAge).value || '').trim().toLowerCase();
+    const isAlumniAge = (pt === 'alumni');
+    // Alumni: never flag. External: flag if DOB invalid or age outside 18-49.
+    let age = 'Invalid DOB';
+    let flagRed = !isAlumniAge;
+    if (dv) {
+      let dob = dv instanceof Date ? dv : new Date(String(dv).substring(0,10));
+      if (!isNaN(dob)) {
+        let a = today.getFullYear() - dob.getFullYear();
+        if (today.getMonth() < dob.getMonth() ||
+            (today.getMonth() === dob.getMonth() && today.getDate() < dob.getDate())) a--;
+        age = a;
+        flagRed = !isAlumniAge && (a < C.MIN_AGE || a > C.MAX_AGE);
+      }
+    }
+    row.getCell(colDOB+1).value = age;
+    if (flagRed) { setFill(row.getCell(colDOB+1), RED_FILL); ageFlags++; stats.ageFlags++; }
+  }
+
   // ── STEP 11: Business Maturity Stage ──────────────────────
   const colProd   = findCol(ws1, 'Where are you with your product', 2);
   const colRevM   = findCol(ws1, '2025/2026', 2);
@@ -1359,13 +1522,28 @@ async function processFile(file) {
 
     // Hard deselectors
     const ageNum  = typeof age === 'number' ? age : parseInt(age);
-    const ageFail = isNaN(ageNum) || ageNum < C.MIN_AGE || ageNum > C.MAX_AGE;
+    // Age range (18–49) only applies to External participants; Alumni (internal) have no age restriction
+    const ageFail = !isAlumni && (isNaN(ageNum) || ageNum < C.MIN_AGE || ageNum > C.MAX_AGE);
     const bcFail  = !bcVal || !REQ.every(x => bcVal.includes(x));
     const revDesel= deselVal.startsWith('DESELECT');
     const matDesel= matVal.startsWith('DESELECT');
 
     if (ageFail || bcFail || revDesel || matDesel) {
-      cell.value = 'Ineligible'; setStyle(cell, RED_FILL, WHITE_FONT); stats.ineligible++; continue;
+      cell.value = 'Ineligible'; setStyle(cell, RED_FILL, WHITE_FONT); stats.ineligible++;
+      if (ageFail)   stats.ineligReasons.age++;
+      if (bcFail)    stats.ineligReasons.compliance++;
+      if (revDesel)  stats.ineligReasons.revenue++;
+      if (matDesel)  stats.ineligReasons.stage++;
+      // Still track province + trade for all-applicant summaries
+      const pvHd = String(colProvince ? row.getCell(colProvince).value||'Unknown' : 'Unknown').trim() || 'Unknown';
+      if (!stats.allProvinces[pvHd]) stats.allProvinces[pvHd] = { total:0, build:0, grow:0, ineligible:0 };
+      stats.allProvinces[pvHd].total++;
+      stats.allProvinces[pvHd].ineligible++;
+      const rawIndHd = String(row.getCell(colIndustry).value || '').trim() || 'Unknown';
+      if (!stats.trades[rawIndHd]) stats.trades[rawIndHd] = { total:0, build:0, grow:0, ineligible:0 };
+      stats.trades[rawIndHd].total++;
+      stats.trades[rawIndHd].ineligible++;
+      continue;
     }
 
     const stageMatch = matVal.match(/Stage (\d)/);
@@ -1380,18 +1558,35 @@ async function processFile(file) {
     // Build: Stage 2 or 3, rev R2,500–R599,999
     const buildOk = (stage === 2 || stage === 3) && rev6 !== null && rev6 >= C.REV_MIN && rev6 < C.GROW_REV_MIN;
 
+    // Track all applicants by province and trade regardless of eligibility outcome
+    const pvAll = String(colProvince ? row.getCell(colProvince).value||'Unknown' : 'Unknown').trim() || 'Unknown';
+    if (!stats.allProvinces[pvAll]) stats.allProvinces[pvAll] = { total:0, build:0, grow:0, ineligible:0 };
+    stats.allProvinces[pvAll].total++;
+
+    const rawIndustry = String(row.getCell(colIndustry).value || '').trim() || 'Unknown';
+    const tradeKey = rawIndustry;
+    if (!stats.trades[tradeKey]) stats.trades[tradeKey] = { total:0, build:0, grow:0, ineligible:0 };
+    stats.trades[tradeKey].total++;
+
     if (growOk) {
       cell.value = 'Grow Programme'; setStyle(cell, BLUE_FILL, WHITE_FONT); stats.grow++;
       const pv = String(colProvince ? row.getCell(colProvince).value||'Unknown' : 'Unknown').trim();
       if (!stats.provinces[pv]) stats.provinces[pv] = {build:0,grow:0};
       stats.provinces[pv].grow++;
+      stats.allProvinces[pvAll].grow++;
+      stats.trades[tradeKey].grow++;
     } else if (buildOk) {
       cell.value = 'Build Programme'; setStyle(cell, GREEN_FILL, GREEN_FONT); stats.build++;
       const pv = String(colProvince ? row.getCell(colProvince).value||'Unknown' : 'Unknown').trim();
       if (!stats.provinces[pv]) stats.provinces[pv] = {build:0,grow:0};
       stats.provinces[pv].build++;
+      stats.allProvinces[pvAll].build++;
+      stats.trades[tradeKey].build++;
     } else {
       cell.value = 'Ineligible'; setStyle(cell, RED_FILL, WHITE_FONT); stats.ineligible++;
+      stats.ineligReasons.noFit++;
+      stats.allProvinces[pvAll].ineligible++;
+      stats.trades[tradeKey].ineligible++;
     }
   }
 
@@ -1406,6 +1601,16 @@ async function processFile(file) {
 
   const outBuf = await wb.xlsx.writeBuffer();
   return { bytes: outBuf, stats, total };
+}
+
+// ════════════════════════════════════════════════════════════
+// INELIG BREAKDOWN TOGGLE
+// ════════════════════════════════════════════════════════════
+function toggleIneligBreakdown() {
+  const panel  = document.getElementById('ineligBreakdown');
+  const toggle = document.getElementById('ineligToggle');
+  const open   = panel.classList.toggle('open');
+  toggle.classList.toggle('open', open);
 }
 
 // ════════════════════════════════════════════════════════════
@@ -1437,6 +1642,14 @@ runBtn.addEventListener('click', async () => {
     document.getElementById('sGrow').textContent        = stats.grow;
     document.getElementById('sBuild').textContent       = stats.build;
     document.getElementById('sInelig').textContent      = stats.ineligible;
+    document.getElementById('rAge').textContent        = stats.ineligReasons.age        || '0';
+    document.getElementById('rCompliance').textContent = stats.ineligReasons.compliance || '0';
+    document.getElementById('rRevenue').textContent    = stats.ineligReasons.revenue    || '0';
+    document.getElementById('rStage').textContent      = stats.ineligReasons.stage      || '0';
+    document.getElementById('rNoFit').textContent      = stats.ineligReasons.noFit      || '0';
+    // Reset toggle state on new run
+    document.getElementById('ineligBreakdown').classList.remove('open');
+    document.getElementById('ineligToggle').classList.remove('open');
     document.getElementById('sAlumni').textContent      = stats.alumni;
     document.getElementById('sExternal').textContent    = stats.external;
     document.getElementById('sDesel').textContent       = stats.deselected;
@@ -1446,42 +1659,107 @@ runBtn.addEventListener('click', async () => {
     document.getElementById('sCompliance').textContent  = stats.bcFlags;
     document.getElementById('recordPill').textContent   = `${total} applicants`;
 
-    // ── Province breakdown ──────────────────────────────────
-    const provData = stats.provinces;
-    const provNames = Object.keys(provData).sort();
-    const maxTotal = Math.max(...provNames.map(p => provData[p].build + provData[p].grow), 1);
-    const table = document.getElementById('provinceTable');
-    table.innerHTML = '';
-
-    if (provNames.length === 0) {
-      table.innerHTML = '<div style="padding:16px 24px;font-size:0.85rem;color:var(--muted)">No eligible candidates found.</div>';
-    } else {
+    // ── 1. Total Applicants by Province (simple count) ────────
+    (function() {
+      const tableEl = document.getElementById('totalProvinceTable');
+      tableEl.innerHTML = '';
+      const data  = stats.allProvinces;
+      const names = Object.keys(data).sort((a,b) => data[b].total - data[a].total);
+      if (names.length === 0) {
+        tableEl.innerHTML = '<div style="padding:16px 24px;font-size:0.85rem;color:var(--muted)">No applicants found.</div>';
+        return;
+      }
+      const maxTotal = Math.max(...names.map(n => data[n].total), 1);
       const hdr = document.createElement('div');
-      hdr.className = 'province-row-header';
-      hdr.innerHTML = '<span>Province</span><span style="text-align:center">Build</span><span style="text-align:center">Grow</span>';
-      table.appendChild(hdr);
-
-      provNames.forEach(prov => {
-        const { build, grow } = provData[prov];
-        const total = build + grow;
-        const buildPct = Math.round((build / maxTotal) * 100);
-        const growPct  = Math.round((grow  / maxTotal) * 100);
+      hdr.style.cssText = 'font-size:0.68rem;letter-spacing:0.1em;text-transform:uppercase;font-weight:700;color:var(--muted);padding:8px 24px 6px;display:grid;grid-template-columns:1fr 80px;gap:8px';
+      hdr.innerHTML = '<span>Province</span><span style="text-align:center">Total</span>';
+      tableEl.appendChild(hdr);
+      names.forEach(name => {
+        const { total } = data[name];
+        const pct = Math.round((total / maxTotal) * 100);
         const row = document.createElement('div');
-        row.style.borderBottom = '1px solid #F5F0E8';
-        row.style.padding = '10px 24px 8px';
+        row.style.cssText = 'padding:9px 24px 7px;border-bottom:1px solid #F5F0E8;font-size:0.85rem';
         row.innerHTML = `
-          <div style="display:grid;grid-template-columns:1fr 80px 80px;gap:8px;align-items:center">
-            <span class="province-name">${prov}</span>
-            <span class="province-count pcount-build" style="text-align:center">${build||'—'}</span>
-            <span class="province-count pcount-grow"  style="text-align:center">${grow||'—'}</span>
+          <div style="display:grid;grid-template-columns:1fr 80px;gap:8px;align-items:center">
+            <span style="font-weight:500">${name}</span>
+            <span style="text-align:center;font-family:'Playfair Display',serif;font-size:1.3rem;line-height:1;color:var(--ink)">${total}</span>
           </div>
-          ${total > 0 ? `<div class="province-bar-wrap" style="margin-top:6px">
-            <div class="province-bar-build" style="width:${buildPct}%"></div>
-            <div class="province-bar-grow"  style="width:${growPct}%"></div>
-          </div>` : ''}`;
-        table.appendChild(row);
+          <div style="height:3px;border-radius:2px;overflow:hidden;background:var(--cream);margin-top:5px">
+            <div style="height:100%;width:${pct}%;background:var(--gold)"></div>
+          </div>`;
+        tableEl.appendChild(row);
       });
-    }
+    })();
+
+    // ── 2. Eligible Applicants by Industry ─────────────────
+    (function() {
+      const tableEl = document.getElementById('tradeTable');
+      tableEl.innerHTML = '';
+      const data  = stats.trades;
+      const names = Object.keys(data)
+        .filter(n => (data[n].build + data[n].grow) > 0)
+        .sort((a,b) => (data[b].build+data[b].grow) - (data[a].build+data[a].grow));
+      if (names.length === 0) {
+        tableEl.innerHTML = '<div style="padding:16px 24px;font-size:0.85rem;color:var(--muted)">No eligible candidates found.</div>';
+        return;
+      }
+      const maxElig = Math.max(...names.map(n => data[n].build + data[n].grow), 1);
+      const hdr = document.createElement('div');
+      hdr.style.cssText = 'font-size:0.68rem;letter-spacing:0.1em;text-transform:uppercase;font-weight:700;color:var(--muted);padding:8px 24px 6px;display:grid;grid-template-columns:1fr 80px;gap:8px';
+      hdr.innerHTML = '<span>Industry</span><span style="text-align:center">Eligible</span>';
+      tableEl.appendChild(hdr);
+      names.forEach(name => {
+        const { build, grow } = data[name];
+        const eligible = build + grow;
+        const pct = Math.round((eligible / maxElig) * 100);
+        const row = document.createElement('div');
+        row.style.cssText = 'padding:9px 24px 7px;border-bottom:1px solid #F5F0E8;font-size:0.85rem';
+        row.innerHTML = `
+          <div style="display:grid;grid-template-columns:1fr 80px;gap:8px;align-items:center">
+            <span style="font-weight:500">${name}</span>
+            <span style="text-align:center;font-family:'Playfair Display',serif;font-size:1.3rem;line-height:1;color:var(--green)">${eligible}</span>
+          </div>
+          <div style="height:3px;border-radius:2px;overflow:hidden;background:var(--cream);margin-top:5px">
+            <div style="height:100%;width:${pct}%;background:var(--green)"></div>
+          </div>`;
+        tableEl.appendChild(row);
+      });
+    })();
+
+    // ── 3. Eligible Applicants by Province (total eligible count) ─
+    (function() {
+      const tableEl = document.getElementById('eligProvinceTable');
+      tableEl.innerHTML = '';
+      const data  = stats.allProvinces;
+      const names = Object.keys(data)
+        .filter(n => (data[n].build + data[n].grow) > 0)
+        .sort((a,b) => (data[b].build+data[b].grow) - (data[a].build+data[a].grow));
+      if (names.length === 0) {
+        tableEl.innerHTML = '<div style="padding:16px 24px;font-size:0.85rem;color:var(--muted)">No eligible candidates found.</div>';
+        return;
+      }
+      const maxElig = Math.max(...names.map(n => data[n].build + data[n].grow), 1);
+      const hdr = document.createElement('div');
+      hdr.style.cssText = 'font-size:0.68rem;letter-spacing:0.1em;text-transform:uppercase;font-weight:700;color:var(--muted);padding:8px 24px 6px;display:grid;grid-template-columns:1fr 80px;gap:8px';
+      hdr.innerHTML = '<span>Province</span><span style="text-align:center">Eligible</span>';
+      tableEl.appendChild(hdr);
+      names.forEach(name => {
+        const { build, grow } = data[name];
+        const eligible = build + grow;
+        const pct = Math.round((eligible / maxElig) * 100);
+        const row = document.createElement('div');
+        row.style.cssText = 'padding:9px 24px 7px;border-bottom:1px solid #F5F0E8;font-size:0.85rem';
+        row.innerHTML = `
+          <div style="display:grid;grid-template-columns:1fr 80px;gap:8px;align-items:center">
+            <span style="font-weight:500">${name}</span>
+            <span style="text-align:center;font-family:'Playfair Display',serif;font-size:1.3rem;line-height:1;color:var(--green)">${eligible}</span>
+          </div>
+          <div style="height:3px;border-radius:2px;overflow:hidden;background:var(--cream);margin-top:5px">
+            <div style="height:100%;width:${pct}%;background:var(--green)"></div>
+          </div>`;
+        tableEl.appendChild(row);
+      });
+    })();
     resultsCard.classList.add('visible');
 
     const blob = new Blob([bytes], { type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
